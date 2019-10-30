@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  jenkins:
+    build: jenkins/.
+    volumes:
+      - $JENKINS_HOME/data:/var/lib/jenkins
+      - //var/run/docker.sock:/var/run/docker.sock
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    ports:
+      - "8080:8080"
+    privileged: true
+    networks:
+      - net1
+  nexus:
+    image: sonatype/nexus3
+    volumes:
+      - $NEXUS_HOME/data:/nexus-data
+    ports:
+      - "8081:8081"
+    networks:
+      - net1 
+  sonar:
+    image: sonarqube
+    volumes:
+      - $SONARQUBE_HOME/conf:/opt/sonarqube/conf
+      - $SONARQUBE_HOME/extensions:/opt/sonarqube/extensions
+      - $SONARQUBE_HOME/data:/opt/sonarqube/data 
+    ports:
+      - "9000:9000"
+    networks:
+      - net1
+
+networks:
+  net1:
