@@ -1,17 +1,21 @@
-FROM centos/systemd
-
+FROM jenkins/jenkins:lts
 USER root
 
-RUN yum install java-1.8.0-openjdk-devel -y
-RUN curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | tee /etc/yum.repos.d/jenkins.repo
-RUN rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
-RUN yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+RUN apt-get update \
+    && apt-get install -y sudo curl libltdl7
+RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-RUN yum install yum install jenkins docker -y
-RUN yum install initscripts -y
+RUN apt-get update \
+    && apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    software-properties-common
 
-RUN systemctl enable jenkins
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
 
-EXPOSE 8080
+RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
-CMD ["/usr/sbin/init"]
+RUN apt update && apt-cache policy docker-ce
+RUN apt-get install -y docker-ce
